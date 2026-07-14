@@ -82,3 +82,10 @@ pnpm build       # tsup → dist/index.js (ESM, shebang)
 pnpm lint
 pnpm typecheck
 ```
+
+## Creator
+
+**Israel De La Hoz**
+
+- GitHub: [@idelahoz](https://github.com/idelahoz)
+- LinkedIn: [israel-de-la-hoz](https://www.linkedin.com/in/israel-de-la-hoz-ba973326/)
