@@ -36,14 +36,14 @@ Expected Value is the engine's unit convention: expected total return per unit b
 
 ### Options
 
-| flag                 | required | description                                                   |
-| -------------------- | -------- | ------------------------------------------------------------- |
-| `--bet <amount>`     | yes      | original wager                                                |
-| `--hand <cards>`     | yes      | player cards, comma separated (`"A,7"`, `"10,J,3"`; `T` = 10) |
-| `--dealer <card>`    | yes      | dealer up card (`9`, `J`, `A`)                                |
-| `--cashout <amount>` | no       | cash-out offer; omit to just see the strategy move + EV       |
-| `--strategy <path>`  | no       | strategy JSON file (default: the engine's bundled `s17.json`) |
-| `--json`             | no       | machine-readable output                                       |
+| flag                    | required | description                                                                                                                                                                                                         |
+| ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--bet <amount>`        | yes      | original wager                                                                                                                                                                                                      |
+| `--hand <cards\|total>` | yes      | player cards, comma separated (`"A,7"`, `"10,J,3"`; `T` = 10) — or a single number 4–21 treated as a **hard total** (`16` = hard 16; splitting is disabled for total inputs, and `10` means hard ten, not the card) |
+| `--dealer <card>`       | yes      | dealer up card (`9`, `J`, `A`)                                                                                                                                                                                      |
+| `--cashout <amount>`    | no       | cash-out offer; omit to just see the strategy move + EV                                                                                                                                                             |
+| `--strategy <path>`     | no       | strategy JSON file (default: the engine's bundled `s17.json`)                                                                                                                                                       |
+| `--json`                | no       | machine-readable output                                                                                                                                                                                             |
 
 ### More examples
 
@@ -54,6 +54,10 @@ blackjack recommend --bet 100 --hand "8,8" --dealer 10
 # Late surrender
 blackjack recommend --bet 100 --hand "10,6" --dealer 10 --cashout 55
 # → Strategy Surrender, EV 0.50, Recommendation Cash Out (0.55 > 0.50)
+
+# Hard total instead of cards
+blackjack recommend --bet 100 --hand 16 --dealer 10
+# → same as any hard 16 vs 10
 
 # Use the H17 chart instead
 blackjack recommend --bet 100 --hand "5,6" --dealer A \

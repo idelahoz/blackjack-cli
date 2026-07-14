@@ -53,6 +53,34 @@ describe("runRecommend (end-to-end against the bundled s17 strategy)", () => {
     expect(io.lines.join("\n")).toContain("Surrender");
   });
 
+  it("treats a single numeric --hand as a hard total", async () => {
+    const io = capture();
+    const code = await runRecommend({ bet: "100", hand: "16", dealer: "10" }, io);
+    expect(code).toBe(0);
+    const output = io.lines.join("\n");
+    expect(output).toContain("16 (hard 16)");
+    expect(output).toContain("Surrender");
+  });
+
+  it("never splits a hard-total input, even when it lands on a pair", async () => {
+    const io = capture();
+    await runRecommend({ bet: "100", hand: "4", dealer: "2" }, io); // maps to 2,2
+    expect(io.lines.join("\n")).toContain("Hit"); // hard 4, not the 2,2 split row
+  });
+
+  it("doubles a hard-total 11 vs 6", async () => {
+    const io = capture();
+    await runRecommend({ bet: "100", hand: "11", dealer: "6" }, io);
+    expect(io.lines.join("\n")).toContain("Double");
+  });
+
+  it("rejects out-of-range hard totals", async () => {
+    const io = capture();
+    const code = await runRecommend({ bet: "100", hand: "22", dealer: "6" }, io);
+    expect(code).toBe(1);
+    expect(io.errors.join("\n")).toContain("between 4 and 21");
+  });
+
   it("emits machine-readable JSON with --json", async () => {
     const io = capture();
     const code = await runRecommend(

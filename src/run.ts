@@ -3,10 +3,10 @@ import {
   bundledStrategyPath,
   evaluateHand,
   parseCard,
-  parseHand,
   type GameState,
 } from "@blackjack/engine";
 import { describeHand, renderReport } from "./format.js";
+import { parseHandOption } from "./hand.js";
 import { parseOptions } from "./parse.js";
 
 export interface Io {
@@ -26,9 +26,9 @@ export async function runRecommend(rawOptions: unknown, io: Io): Promise<number>
   }
   const options = optionsResult.value;
 
-  const handResult = parseHand(options.hand);
+  const handResult = parseHandOption(options.hand);
   if (handResult.isErr()) {
-    io.error(handResult.error.message);
+    io.error(handResult.error);
     return 1;
   }
   const dealerResult = parseCard(options.dealer);
@@ -46,8 +46,9 @@ export async function runRecommend(rawOptions: unknown, io: Io): Promise<number>
   const engine = engineResult.value;
 
   const state: GameState = {
-    playerCards: handResult.value,
+    playerCards: handResult.value.cards,
     dealerUpCard: dealerResult.value,
+    ...(handResult.value.canSplit === false ? { canSplit: false } : {}),
   };
   const handValue = evaluateHand(state.playerCards);
   if (handValue.isErr()) {
