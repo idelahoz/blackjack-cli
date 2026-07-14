@@ -36,7 +36,11 @@ Strategy        Hit
 Expected Value  0.90
 Cash Out        82 (0.82 units)
 Recommendation  Continue
+
+Now you must HIT
 ```
+
+The closing `Now you must <ACTION>` line is the single move to make once every engine has weighed in — when the cash-out offer beats the EV of continuing, it says `CASH OUT` regardless of the table action.
 
 Flags and prompts mix freely — `blackjack --bet 100` asks only for the hand, dealer, and (optional) cash-out.
 
