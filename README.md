@@ -4,19 +4,30 @@
 
 Command-line interface for [`@idelahoz/blackjack-engine`](https://github.com/idelahoz/blackjack-engine) — basic-strategy moves, expected value, and cash-out recommendations.
 
-## Setup
+## Install
 
-Requires Node 22+ and a sibling checkout of the engine (the dependency is linked locally via `link:../blackjack-engine` until the engine is published to npm):
+Requires Node 22+.
 
 ```sh
-git clone git@github.com:idelahoz/blackjack-engine.git
-git clone git@github.com:idelahoz/blackjack-cli.git
-
-cd blackjack-engine && pnpm install && pnpm build
-cd ../blackjack-cli && pnpm install && pnpm build
+npm install -g @idelahoz/blackjack-cli   # or: pnpm add -g @idelahoz/blackjack-cli
+blackjack
 ```
 
-Run it as `node dist/index.js …`, or `npm link` to get a global `blackjack` command.
+Or run it without installing:
+
+```sh
+npx @idelahoz/blackjack-cli
+```
+
+### From source
+
+```sh
+git clone git@github.com:idelahoz/blackjack-cli.git
+cd blackjack-cli && pnpm install && pnpm build
+node dist/index.js        # or `npm link` for a global `blackjack` command
+```
+
+The engine dependency ([`@idelahoz/blackjack-engine`](https://www.npmjs.com/package/@idelahoz/blackjack-engine)) installs from npm either way.
 
 ## Usage
 
@@ -27,7 +38,7 @@ Just run `blackjack` — anything you don't pass as a flag is prompted, with ins
 ```
 $ blackjack
 Bet amount: 100
-Your hand (cards like "A,7" or a hard total like "16"): A,7
+Your hand ("A,7", "A 7", or a hard total like "16"): A,7
 Dealer up card: 9
 Cash-out offer (press Enter to skip): 82
 Current Hand    A,7 (soft 18)
@@ -83,9 +94,10 @@ blackjack recommend --bet 100 --hand "10,6" --dealer 10 --cashout 55
 blackjack recommend --bet 100 --hand 16 --dealer 10
 # → same as any hard 16 vs 10
 
-# Use the H17 chart instead
+# Use the bundled H17 chart (or any custom strategy JSON) instead of the s17 default
 blackjack recommend --bet 100 --hand "5,6" --dealer A \
-  --strategy ../blackjack-engine/strategies/h17.json
+  --strategy "$(npm root -g)/@idelahoz/blackjack-cli/node_modules/@idelahoz/blackjack-engine/strategies/h17.json"
+# (from an engine checkout, simply: --strategy path/to/strategies/h17.json)
 
 # JSON output
 blackjack recommend --bet 100 --hand "A,7" --dealer 9 --cashout 82 --json
