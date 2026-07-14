@@ -123,7 +123,7 @@ export async function promptForMissing(
     const value = await askUntilValid(
       ask,
       io,
-      'Your hand (cards like "A,7" or a hard total like "16"): ',
+      'Your hand ("A,7", "A 7", or a hard total like "16"): ',
       validateHand,
     );
     if (value === null) return err(ABORTED);

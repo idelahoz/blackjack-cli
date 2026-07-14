@@ -9,7 +9,7 @@ export interface HandInput {
 
 /**
  * Parses the --hand option. Two forms are accepted:
- *  - comma-separated cards: "A,7", "10,J,3"
+ *  - cards separated by commas and/or spaces: "A,7", "A 7", "10 J 3"
  *  - a single numeric value: "16" — treated as a HARD TOTAL and mapped to a
  *    representative two-card hand (splitting disabled). Note that "10" is the
  *    hard total ten, not the card; a single card is never a valid hand.
@@ -23,7 +23,9 @@ export function parseHandOption(input: string): Result<HandInput, string> {
     }
     return ok({ cards: cardsForHardTotal(total), canSplit: false });
   }
-  return parseHand(input)
+  // Normalize space separators to commas so "A 7" and "A,7" are equivalent.
+  const normalized = trimmed.replace(/\s+/g, ",");
+  return parseHand(normalized)
     .map((cards) => ({ cards }))
     .mapErr((error) => error.message);
 }

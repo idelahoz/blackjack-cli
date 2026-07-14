@@ -9,6 +9,30 @@ describe("parseHandOption", () => {
     expect(result.canSplit).toBeUndefined();
   });
 
+  it("parses space-separated cards, including mixed separators", () => {
+    expect(parseHandOption("A 7")._unsafeUnwrap().cards).toEqual([{ rank: "A" }, { rank: "7" }]);
+    expect(parseHandOption("10 J 3")._unsafeUnwrap().cards).toEqual([
+      { rank: "10" },
+      { rank: "J" },
+      { rank: "3" },
+    ]);
+    expect(parseHandOption("A, 7 K")._unsafeUnwrap().cards).toEqual([
+      { rank: "A" },
+      { rank: "7" },
+      { rank: "K" },
+    ]);
+    expect(parseHandOption("  8   8  ")._unsafeUnwrap().cards).toEqual([
+      { rank: "8" },
+      { rank: "8" },
+    ]);
+  });
+
+  it("still reads a single number as a total, but digit pairs with spaces as cards", () => {
+    expect(parseHandOption("16")._unsafeUnwrap().canSplit).toBe(false); // hard total
+    const spaced = parseHandOption("1 6");
+    expect(spaced._unsafeUnwrapErr()).toContain("Invalid card"); // "1" is not a card
+  });
+
   it("treats a single numeric value as a hard total with splitting disabled", () => {
     for (let total = 4; total <= 21; total++) {
       const result = parseHandOption(String(total))._unsafeUnwrap();
