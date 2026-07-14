@@ -2,7 +2,24 @@
   "name": "@idelahoz/blackjack-cli",
   "version": "0.1.0",
   "description": "Command-line interface for the @idelahoz/blackjack-engine recommendation library.",
+  "keywords": [
+    "blackjack",
+    "basic-strategy",
+    "expected-value",
+    "cli"
+  ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idelahoz/blackjack-cli.git"
+  },
+  "homepage": "https://github.com/idelahoz/blackjack-cli#readme",
+  "bugs": {
+    "url": "https://github.com/idelahoz/blackjack-cli/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "engines": {
     "node": ">=22"
@@ -15,6 +32,7 @@
     "dist"
   ],
   "scripts": {
+    "prepublishOnly": "pnpm build && pnpm test && pnpm lint",
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest run",
