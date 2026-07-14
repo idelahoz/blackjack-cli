@@ -118,6 +118,32 @@ describe("runRecommend (end-to-end against the bundled s17 strategy)", () => {
     expect(io.errors.join("\n")).toContain("Cannot read strategy file");
   });
 
+  it("fails with a helpful message when flags are missing and no prompt is available", async () => {
+    const io = capture();
+    const code = await runRecommend({ bet: "100" }, io);
+    expect(code).toBe(1);
+    expect(io.errors.join("\n")).toContain("Missing required options: --hand, --dealer");
+  });
+
+  it("prompts for missing values when an ask function is provided", async () => {
+    const io = capture();
+    const answers = ["100", "A,7", "9", "82"];
+    const code = await runRecommend({}, io, async () => answers.shift() ?? null);
+    expect(code).toBe(0);
+    const output = io.lines.join("\n");
+    expect(output).toContain("A,7 (soft 18)");
+    expect(output).toMatch(/Recommendation\s+(Continue|Cash Out)/);
+  });
+
+  it("only prompts for the values not passed as flags", async () => {
+    const io = capture();
+    const answers = ["10,6", "10", ""];
+    const code = await runRecommend({ bet: "100" }, io, async () => answers.shift() ?? null);
+    expect(code).toBe(0);
+    expect(answers).toHaveLength(0); // hand, dealer, cashout-skip all consumed
+    expect(io.lines.join("\n")).toContain("Surrender");
+  });
+
   it("accepts a custom strategy file (bundled h17)", async () => {
     const { bundledStrategyPath } = await import("@idelahoz/blackjack-engine");
     const io = capture();

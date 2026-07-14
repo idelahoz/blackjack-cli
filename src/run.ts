@@ -8,18 +8,40 @@ import {
 import { describeHand, renderReport } from "./format.js";
 import { parseHandOption } from "./hand.js";
 import { parseOptions } from "./parse.js";
+import { promptForMissing, type Ask } from "./prompt.js";
 
 export interface Io {
   out: (line: string) => void;
   error: (line: string) => void;
 }
 
+const REQUIRED_OPTIONS = ["bet", "hand", "dealer"] as const;
+
 /**
  * Executes the `recommend` command. Returns the process exit code so the
  * commander wiring stays trivial and this stays unit-testable.
+ *
+ * Options omitted as flags are prompted for interactively via `ask`; when no
+ * `ask` is available, missing required options are an error.
  */
-export async function runRecommend(rawOptions: unknown, io: Io): Promise<number> {
-  const optionsResult = parseOptions(rawOptions);
+export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Promise<number> {
+  let raw = { ...((rawOptions ?? {}) as Record<string, unknown>) };
+
+  const missing = REQUIRED_OPTIONS.filter((key) => raw[key] === undefined);
+  if (missing.length > 0) {
+    if (ask === undefined) {
+      io.error(`Missing required options: ${missing.map((key) => `--${key}`).join(", ")}`);
+      return 1;
+    }
+    const prompted = await promptForMissing(raw, ask, io);
+    if (prompted.isErr()) {
+      io.error(prompted.error);
+      return 1;
+    }
+    raw = prompted.value;
+  }
+
+  const optionsResult = parseOptions(raw);
   if (optionsResult.isErr()) {
     io.error(optionsResult.error);
     return 1;

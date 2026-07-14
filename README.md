@@ -20,6 +20,28 @@ Run it as `node dist/index.js …`, or `npm link` to get a global `blackjack` co
 
 ## Usage
 
+### Interactive (fastest)
+
+Just run `blackjack` — anything you don't pass as a flag is prompted, with instant validation and re-ask on typos:
+
+```
+$ blackjack
+Bet amount: 100
+Your hand (cards like "A,7" or a hard total like "16"): A,7
+Dealer up card: 9
+Cash-out offer (press Enter to skip): 82
+Current Hand    A,7 (soft 18)
+Dealer          9
+Strategy        Hit
+Expected Value  0.90
+Cash Out        82 (0.82 units)
+Recommendation  Continue
+```
+
+Flags and prompts mix freely — `blackjack --bet 100` asks only for the hand, dealer, and (optional) cash-out.
+
+### Flags (script-friendly)
+
 ```sh
 blackjack recommend \
     --bet 100 \
@@ -28,14 +50,7 @@ blackjack recommend \
     --cashout 82
 ```
 
-```
-Current Hand    A,7 (soft 18)
-Dealer          9
-Strategy        Hit
-Expected Value  0.90
-Cash Out        82 (0.82 units)
-Recommendation  Continue
-```
+The `recommend` subcommand is the default, so it can be omitted. Fully-flagged invocations never prompt and never read stdin.
 
 Expected Value is the engine's unit convention: expected total return per unit bet (`1.0` = break even, `0.90` = expect back 90% of the wager). The recommendation is `Cash Out` exactly when the offer exceeds `EV × bet`.
 
