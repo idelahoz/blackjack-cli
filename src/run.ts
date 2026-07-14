@@ -4,7 +4,7 @@ import {
   evaluateHand,
   parseCard,
   type GameState,
-} from "@blackjack/engine";
+} from "@idelahoz/blackjack-engine";
 import { describeHand, renderReport } from "./format.js";
 import { parseHandOption } from "./hand.js";
 import { parseOptions } from "./parse.js";

@@ -119,7 +119,7 @@ describe("runRecommend (end-to-end against the bundled s17 strategy)", () => {
   });
 
   it("accepts a custom strategy file (bundled h17)", async () => {
-    const { bundledStrategyPath } = await import("@blackjack/engine");
+    const { bundledStrategyPath } = await import("@idelahoz/blackjack-engine");
     const io = capture();
     const code = await runRecommend(
       { bet: "100", hand: "5,6", dealer: "A", strategy: bundledStrategyPath("h17") },

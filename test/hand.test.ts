@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { evaluateHand } from "@blackjack/engine";
+import { evaluateHand } from "@idelahoz/blackjack-engine";
 import { parseHandOption } from "../src/hand.js";
 
 describe("parseHandOption", () => {

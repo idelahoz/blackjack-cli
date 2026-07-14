@@ -1,4 +1,4 @@
-import type { Action, CashOutRecommendation, HandValue } from "@blackjack/engine";
+import type { Action, CashOutRecommendation, HandValue } from "@idelahoz/blackjack-engine";
 
 const ACTION_LABELS: Record<Action, string> = {
   hit: "Hit",

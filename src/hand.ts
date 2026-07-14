@@ -1,4 +1,4 @@
-import { parseHand, type Card, type Rank } from "@blackjack/engine";
+import { parseHand, type Card, type Rank } from "@idelahoz/blackjack-engine";
 import { err, ok, type Result } from "neverthrow";
 
 export interface HandInput {

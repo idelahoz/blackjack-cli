@@ -8,7 +8,7 @@ importers:
 
   .:
     dependencies:
-      '@blackjack/engine':
+      '@idelahoz/blackjack-engine':
         specifier: link:../blackjack-engine
         version: link:../blackjack-engine
       commander:

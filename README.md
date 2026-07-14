@@ -1,8 +1,8 @@
-# @blackjack/cli
+# @idelahoz/blackjack-cli
 
 ![Node 22+](https://img.shields.io/badge/node-%3E%3D22-brightgreen) ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
 
-Command-line interface for [`@blackjack/engine`](https://github.com/idelahoz/blackjack-engine) — basic-strategy moves, expected value, and cash-out recommendations.
+Command-line interface for [`@idelahoz/blackjack-engine`](https://github.com/idelahoz/blackjack-engine) — basic-strategy moves, expected value, and cash-out recommendations.
 
 ## Setup
 
