@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@idelahoz/blackjack-engine':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       commander:
         specifier: ^14.0.0
         version: 14.0.3
@@ -418,8 +418,8 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
-  '@idelahoz/blackjack-engine@0.1.0':
-    resolution: {integrity: sha512-1/L+VOAJnNRWFkOGbjo+g2WZyuktLiTh7lmtAKh4vVJCxWJpKt7jjB5EFmlcZBa8Su5U7RV55EqkTRvV1lMf7Q==}
+  '@idelahoz/blackjack-engine@0.2.0':
+    resolution: {integrity: sha512-WVQcEcS3I9p0WADHhhkUAhAZBM9LMlp56KimsumhmOXVoubCr3KWI7mqSftX2u79FTxP8DCSv2cBJ2T82ByOlQ==}
     engines: {node: '>=22'}
 
   '@jridgewell/gen-mapping@0.3.13':
@@ -1568,7 +1568,7 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
-  '@idelahoz/blackjack-engine@0.1.0':
+  '@idelahoz/blackjack-engine@0.2.0':
     dependencies:
       neverthrow: 8.2.0
       zod: 4.4.3

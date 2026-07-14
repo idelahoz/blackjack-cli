@@ -23,9 +23,7 @@ export function parseHandOption(input: string): Result<HandInput, string> {
     }
     return ok({ cards: cardsForHardTotal(total), canSplit: false });
   }
-  // Normalize space separators to commas so "A 7" and "A,7" are equivalent.
-  const normalized = trimmed.replace(/\s+/g, ",");
-  return parseHand(normalized)
+  return parseHand(trimmed)
     .map((cards) => ({ cards }))
     .mapErr((error) => error.message);
 }
