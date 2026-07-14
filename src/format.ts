@@ -31,6 +31,14 @@ export interface ReportInput {
   };
 }
 
+/**
+ * The single move to make once every engine has weighed in: the cash-out
+ * recommendation overrides the table action.
+ */
+export function finalAction(action: Action, recommendation?: CashOutRecommendation): string {
+  return recommendation === "cash_out" ? "CASH OUT" : formatAction(action).toUpperCase();
+}
+
 /** Renders the human-readable report shown by `blackjack recommend`. */
 export function renderReport(input: ReportInput): string {
   const rows: Array<[string, string]> = [
@@ -46,5 +54,6 @@ export function renderReport(input: ReportInput): string {
     );
   }
   const width = Math.max(...rows.map(([label]) => label.length));
-  return rows.map(([label, value]) => `${label.padEnd(width)}  ${value}`).join("\n");
+  const report = rows.map(([label, value]) => `${label.padEnd(width)}  ${value}`).join("\n");
+  return `${report}\n\nNow you must ${finalAction(input.action, input.cashOut?.recommendation)}`;
 }

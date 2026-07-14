@@ -53,6 +53,27 @@ describe("runRecommend (end-to-end against the bundled s17 strategy)", () => {
     expect(io.lines.join("\n")).toContain("Surrender");
   });
 
+  it("ends with the strategy action as the final verdict when continuing", async () => {
+    const io = capture();
+    await runRecommend({ bet: "100", hand: "A,7", dealer: "9", cashout: "50" }, io);
+    const output = io.lines.join("\n");
+    expect(output.trimEnd().endsWith("Now you must HIT")).toBe(true);
+  });
+
+  it("ends with CASH OUT when the offer beats the EV", async () => {
+    const io = capture();
+    await runRecommend({ bet: "100", hand: "10,6", dealer: "10", cashout: "55" }, io);
+    const output = io.lines.join("\n");
+    expect(output).toContain("Recommendation");
+    expect(output.trimEnd().endsWith("Now you must CASH OUT")).toBe(true);
+  });
+
+  it("shows the verdict even without a cash-out offer", async () => {
+    const io = capture();
+    await runRecommend({ bet: "100", hand: "8,8", dealer: "10" }, io);
+    expect(io.lines.join("\n").trimEnd().endsWith("Now you must SPLIT")).toBe(true);
+  });
+
   it("treats a single numeric --hand as a hard total", async () => {
     const io = capture();
     const code = await runRecommend({ bet: "100", hand: "16", dealer: "10" }, io);
