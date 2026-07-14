@@ -1,17 +1,22 @@
 # @blackjack/cli
 
-Command-line interface for [`@blackjack/engine`](../blackjack-engine) — basic-strategy moves, expected value, and cash-out recommendations.
+![Node 22+](https://img.shields.io/badge/node-%3E%3D22-brightgreen) ![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)
+
+Command-line interface for [`@blackjack/engine`](https://github.com/idelahoz/blackjack-engine) — basic-strategy moves, expected value, and cash-out recommendations.
 
 ## Setup
 
-Requires Node 22+ and a built `../blackjack-engine` checkout (the dependency is linked locally until the engine is published):
+Requires Node 22+ and a sibling checkout of the engine (the dependency is linked locally via `link:../blackjack-engine` until the engine is published to npm):
 
 ```sh
-cd ../blackjack-engine && pnpm install && pnpm build
-cd ../blackjack-cli    && pnpm install && pnpm build
+git clone git@github.com:idelahoz/blackjack-engine.git
+git clone git@github.com:idelahoz/blackjack-cli.git
+
+cd blackjack-engine && pnpm install && pnpm build
+cd ../blackjack-cli && pnpm install && pnpm build
 ```
 
-Run it as `node dist/index.js …`, or `pnpm link --global` to get a global `blackjack` command.
+Run it as `node dist/index.js …`, or `npm link` to get a global `blackjack` command.
 
 ## Usage
 
