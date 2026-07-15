@@ -53,6 +53,22 @@ Now you must HIT
 
 The closing `Now you must <ACTION>` line is the single move to make once every engine has weighed in — when the cash-out offer beats the EV of continuing, it says `CASH OUT` regardless of the table action.
 
+**The hand keeps playing.** When the verdict is `HIT`, the tool stays in the hand: tell it the card you drew, optionally enter the table's new cash-out offer, and it re-evaluates — repeating until the hand resolves (stand, bust, cash out, …) or you press Enter to quit:
+
+```
+Now you must HIT
+
+Card you drew (press Enter to quit): 2
+Cash-out offer (press Enter to skip):
+
+Current Hand    9,3 +2 (hard 14)
+Dealer          10
+Strategy        Hit (h17)
+Expected Value  0.53
+
+Now you must HIT
+```
+
 Flags and prompts mix freely — `blackjack --bet 100` asks only for the hand, dealer, and (optional) cash-out.
 
 ### Flags (script-friendly)

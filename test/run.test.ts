@@ -165,6 +165,67 @@ describe("runRecommend (end-to-end against the bundled s17 strategy)", () => {
     expect(io.lines.join("\n")).toContain("Surrender");
   });
 
+  it("continues the hand after a HIT verdict: draw, re-evaluate, then stand", async () => {
+    const io = capture();
+    // 9,3 (12) vs 10 → HIT; draw 8 → 20 vs 10 → STAND ends the loop.
+    const answers = ["8", ""];
+    const code = await runRecommend({ bet: "100", hand: "9,3", dealer: "10" }, io, async (q) =>
+      q.includes("Card you drew") || q.includes("Cash-out") ? (answers.shift() ?? null) : null,
+    );
+    expect(code).toBe(0);
+    const output = io.lines.join("\n");
+    expect(output).toContain("9,3 (hard 12)");
+    expect(output).toContain("9,3 +8 (hard 20)");
+    expect(output.trimEnd().endsWith("Now you must STAND")).toBe(true);
+  });
+
+  it("ends the hand on a bust after drawing", async () => {
+    const io = capture();
+    const answers = ["10"]; // 9,3 (12) + 10 = 22
+    const code = await runRecommend(
+      { bet: "100", hand: "9,3", dealer: "10" },
+      io,
+      async () => answers.shift() ?? null,
+    );
+    expect(code).toBe(0);
+    const output = io.lines.join("\n");
+    expect(output).toContain("Bust — 9,3 +10 is 22. Hand over.");
+  });
+
+  it("stops cleanly when Enter is pressed at the draw prompt", async () => {
+    const io = capture();
+    const answers = [""];
+    const code = await runRecommend(
+      { bet: "100", hand: "9,3", dealer: "10" },
+      io,
+      async () => answers.shift() ?? null,
+    );
+    expect(code).toBe(0);
+    expect(io.lines.join("\n")).toContain("Now you must HIT");
+  });
+
+  it("can cash out mid-hand with a fresh offer after drawing", async () => {
+    const io = capture();
+    // 9,3 vs 10 → HIT; draw 2 → 14 vs 10 (EV ≈ 0.47); offer 80 → CASH OUT.
+    const answers = ["2", "80"];
+    const code = await runRecommend(
+      { bet: "100", hand: "9,3", dealer: "10" },
+      io,
+      async () => answers.shift() ?? null,
+    );
+    expect(code).toBe(0);
+    const output = io.lines.join("\n");
+    expect(output).toContain("9,3 +2 (hard 14)");
+    expect(output.trimEnd().endsWith("Now you must CASH OUT")).toBe(true);
+  });
+
+  it("does not loop without an interactive ask (flags-only)", async () => {
+    const io = capture();
+    const code = await runRecommend({ bet: "100", hand: "9,3", dealer: "10" }, io);
+    expect(code).toBe(0);
+    expect(io.lines.join("\n").trimEnd().endsWith("Now you must HIT")).toBe(true);
+  });
+
   it("defaults to the h17 chart (11 vs A doubles)", async () => {
     const io = capture();
     const code = await runRecommend({ bet: "100", hand: "5,6", dealer: "A" }, io);

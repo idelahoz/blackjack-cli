@@ -4,11 +4,14 @@ import {
   bundledStrategyPath,
   evaluateHand,
   parseCard,
+  type Action,
+  type Card,
+  type CashOutRecommendation,
   type GameState,
 } from "@idelahoz/blackjack-engine";
 import { describeHand, renderReport } from "./format.js";
-import { parseHandOption } from "./hand.js";
 import { parseOptions } from "./parse.js";
+import { parseHandOption } from "./hand.js";
 import { promptForMissing, type Ask } from "./prompt.js";
 
 export interface Io {
@@ -24,6 +27,10 @@ const REQUIRED_OPTIONS = ["bet", "hand", "dealer"] as const;
  *
  * Options omitted as flags are prompted for interactively via `ask`; when no
  * `ask` is available, missing required options are an error.
+ *
+ * In interactive mode a HIT verdict keeps the hand alive: the drawn card is
+ * asked for, folded into the hand, and the position re-evaluated until the
+ * hand resolves (stand/double/surrender/cash-out, bust, or Enter to quit).
  */
 export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Promise<number> {
   let raw = { ...((rawOptions ?? {}) as Record<string, unknown>) };
@@ -74,97 +81,129 @@ export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Prom
   }
   const engine = engineResult.value;
 
-  const state: GameState = {
-    playerCards: handResult.value.cards,
-    dealerUpCard: dealerResult.value,
-    ...(handResult.value.canSplit === false ? { canSplit: false } : {}),
-  };
-  const handValue = evaluateHand(state.playerCards);
-  if (handValue.isErr()) {
-    io.error(handValue.error.message);
-    return 1;
-  }
+  let cards: Card[] = [...handResult.value.cards];
+  const forbidSplit = handResult.value.canSplit === false;
+  let handLabel = options.hand;
+  let cashout: number | undefined = options.cashout;
 
-  if (options.cashout !== undefined) {
-    const result = engine.evaluateCashOut({
-      bet: options.bet,
-      cashOut: options.cashout,
-      state,
-    });
-    if (result.isErr()) {
-      io.error(result.error.message);
+  for (;;) {
+    const state: GameState = {
+      playerCards: cards,
+      dealerUpCard: dealerResult.value,
+      ...(forbidSplit ? { canSplit: false } : {}),
+    };
+    const handValue = evaluateHand(cards);
+    if (handValue.isErr()) {
+      io.error(handValue.error.message);
       return 1;
     }
-    const { strategyAction, ev, cashOutValue, recommendation } = result.value;
+
+    let action: Action;
+    let ev: number;
+    let recommendation: CashOutRecommendation | undefined;
+    let cashOutBlock:
+      { offer: number; value: number; recommendation: CashOutRecommendation } | undefined;
+
+    if (cashout !== undefined) {
+      const result = engine.evaluateCashOut({ bet: options.bet, cashOut: cashout, state });
+      if (result.isErr()) {
+        io.error(result.error.message);
+        return 1;
+      }
+      action = result.value.strategyAction;
+      ev = result.value.ev;
+      recommendation = result.value.recommendation;
+      cashOutBlock = { offer: cashout, value: result.value.cashOutValue, recommendation };
+    } else {
+      const actionResult = engine.recommend(state);
+      if (actionResult.isErr()) {
+        io.error(actionResult.error.message);
+        return 1;
+      }
+      action = actionResult.value;
+      ev = engine.expectedValue(state);
+    }
+
     if (options.json) {
       io.out(
         JSON.stringify(
           {
-            hand: options.hand,
+            hand: handLabel,
             dealer: options.dealer,
             bet: options.bet,
             chart,
-            strategyAction,
+            strategyAction: action,
             ev,
-            cashOut: options.cashout,
-            cashOutValue,
-            recommendation,
-            finalAction: recommendation === "cash_out" ? "cash_out" : strategyAction,
+            ...(cashOutBlock !== undefined
+              ? {
+                  cashOut: cashOutBlock.offer,
+                  cashOutValue: cashOutBlock.value,
+                  recommendation,
+                }
+              : {}),
+            finalAction: recommendation === "cash_out" ? "cash_out" : action,
           },
           null,
           2,
         ),
       );
-    } else {
-      io.out(
-        renderReport({
-          hand: options.hand,
-          handDescription: describeHand(handValue.value),
-          dealer: options.dealer,
-          action: strategyAction,
-          chart,
-          ev,
-          cashOut: { offer: options.cashout, value: cashOutValue, recommendation },
-        }),
-      );
+      return 0;
     }
-    return 0;
-  }
 
-  const actionResult = engine.recommend(state);
-  if (actionResult.isErr()) {
-    io.error(actionResult.error.message);
-    return 1;
-  }
-  const ev = engine.expectedValue(state);
-
-  if (options.json) {
-    io.out(
-      JSON.stringify(
-        {
-          hand: options.hand,
-          dealer: options.dealer,
-          bet: options.bet,
-          chart,
-          strategyAction: actionResult.value,
-          ev,
-          finalAction: actionResult.value,
-        },
-        null,
-        2,
-      ),
-    );
-  } else {
     io.out(
       renderReport({
-        hand: options.hand,
+        hand: handLabel,
         handDescription: describeHand(handValue.value),
         dealer: options.dealer,
-        action: actionResult.value,
+        action,
         chart,
         ev,
+        cashOut: cashOutBlock,
       }),
     );
+
+    // Only a HIT verdict leaves you with another decision to make.
+    const handContinues = recommendation !== "cash_out" && action === "hit" && ask !== undefined;
+    if (!handContinues) return 0;
+
+    const drawn = await askDrawnCard(ask, io);
+    if (drawn === "stop") return 0;
+    cards = [...cards, drawn];
+    handLabel = `${handLabel} +${drawn.rank}`;
+
+    const afterDraw = evaluateHand(cards);
+    if (afterDraw.isOk() && afterDraw.value.isBust) {
+      io.out(`\nBust — ${handLabel} is ${afterDraw.value.total}. Hand over.`);
+      return 0;
+    }
+
+    const offer = await askNextCashout(ask, io);
+    if (offer === "stop") return 0;
+    cashout = offer;
+    io.out("");
   }
-  return 0;
+}
+
+async function askDrawnCard(ask: Ask, io: Io): Promise<Card | "stop"> {
+  for (;;) {
+    const answer = await ask("\nCard you drew (press Enter to quit): ");
+    if (answer === null) return "stop";
+    const value = answer.trim();
+    if (value === "") return "stop";
+    const card = parseCard(value);
+    if (card.isOk()) return card.value;
+    io.error(card.error.message);
+  }
+}
+
+async function askNextCashout(ask: Ask, io: Io): Promise<number | undefined | "stop"> {
+  for (;;) {
+    const answer = await ask("Cash-out offer (press Enter to skip): ");
+    if (answer === null) return "stop";
+    const value = answer.trim();
+    if (value === "") return undefined;
+    const offer = Number(value);
+    if (Number.isFinite(offer) && offer >= 0) return offer;
+    io.error("Cash-out must be a non-negative number (or press Enter to skip).");
+  }
 }
