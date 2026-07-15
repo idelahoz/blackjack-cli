@@ -77,7 +77,8 @@ Expected Value is the engine's unit convention: expected total return per unit b
 | `--hand <cards\|total>` | yes      | player cards, separated by commas and/or spaces (`"A,7"`, `"A 7"`, `"10 J 3"`; `T` = 10; quote the value when using spaces) — or a single number 4–21 treated as a **hard total** (`16` = hard 16; splitting is disabled for total inputs, and `10` means hard ten, not the card) |
 | `--dealer <card>`       | yes      | dealer up card (`9`, `J`, `A`)                                                                                                                                                                                                                                                    |
 | `--cashout <amount>`    | no       | cash-out offer; omit to just see the strategy move + EV                                                                                                                                                                                                                           |
-| `--strategy <path>`     | no       | strategy JSON file (default: the engine's bundled `s17.json`)                                                                                                                                                                                                                     |
+| `--rules <s17\|h17>`    | no       | which bundled chart to use: `h17` = dealer hits soft 17 (**default**), `s17` = dealer stands on all 17s. The report shows the active chart next to the strategy action.                                                                                                           |
+| `--strategy <path>`     | no       | custom strategy JSON file (mutually exclusive with `--rules`)                                                                                                                                                                                                                     |
 | `--json`                | no       | machine-readable output                                                                                                                                                                                                                                                           |
 
 ### More examples
@@ -94,10 +95,12 @@ blackjack recommend --bet 100 --hand "10,6" --dealer 10 --cashout 55
 blackjack recommend --bet 100 --hand 16 --dealer 10
 # → same as any hard 16 vs 10
 
-# Use the bundled H17 chart (or any custom strategy JSON) instead of the s17 default
-blackjack recommend --bet 100 --hand "5,6" --dealer A \
-  --strategy "$(npm root -g)/@idelahoz/blackjack-cli/node_modules/@idelahoz/blackjack-engine/strategies/h17.json"
-# (from an engine checkout, simply: --strategy path/to/strategies/h17.json)
+# Playing a table where the dealer stands on soft 17? Switch charts:
+blackjack recommend --bet 100 --hand "5,6" --dealer A --rules s17
+# → Hit (s17); the h17 default would say Double
+
+# Or load your own chart from a file
+blackjack recommend --bet 100 --hand "5,6" --dealer A --strategy path/to/custom.json
 
 # JSON output
 blackjack recommend --bet 100 --hand "A,7" --dealer 9 --cashout 82 --json

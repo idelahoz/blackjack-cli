@@ -165,6 +165,39 @@ describe("runRecommend (end-to-end against the bundled s17 strategy)", () => {
     expect(io.lines.join("\n")).toContain("Surrender");
   });
 
+  it("defaults to the h17 chart (11 vs A doubles)", async () => {
+    const io = capture();
+    const code = await runRecommend({ bet: "100", hand: "5,6", dealer: "A" }, io);
+    expect(code).toBe(0);
+    const output = io.lines.join("\n");
+    expect(output).toContain("Double (h17)");
+    expect(output.trimEnd().endsWith("Now you must DOUBLE")).toBe(true);
+  });
+
+  it("switches charts with --rules s17 (11 vs A hits)", async () => {
+    const io = capture();
+    const code = await runRecommend({ bet: "100", hand: "5,6", dealer: "A", rules: "s17" }, io);
+    expect(code).toBe(0);
+    expect(io.lines.join("\n")).toContain("Hit (s17)");
+  });
+
+  it("rejects invalid --rules values", async () => {
+    const io = capture();
+    const code = await runRecommend({ bet: "100", hand: "5,6", dealer: "A", rules: "x17" }, io);
+    expect(code).toBe(1);
+    expect(io.errors.join("\n")).toContain("--rules");
+  });
+
+  it("rejects --rules combined with --strategy", async () => {
+    const io = capture();
+    const code = await runRecommend(
+      { bet: "100", hand: "5,6", dealer: "A", rules: "s17", strategy: "custom.json" },
+      io,
+    );
+    expect(code).toBe(1);
+    expect(io.errors.join("\n")).toContain("not both");
+  });
+
   it("accepts a custom strategy file (bundled h17)", async () => {
     const { bundledStrategyPath } = await import("@idelahoz/blackjack-engine");
     const io = capture();

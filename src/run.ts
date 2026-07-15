@@ -1,3 +1,4 @@
+import { basename } from "node:path";
 import {
   BlackjackEngine,
   bundledStrategyPath,
@@ -59,7 +60,13 @@ export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Prom
     return 1;
   }
 
-  const strategyPath = options.strategy ?? bundledStrategyPath("s17");
+  if (options.strategy !== undefined && options.rules !== undefined) {
+    io.error("Use either --rules or --strategy, not both.");
+    return 1;
+  }
+  const strategyPath = options.strategy ?? bundledStrategyPath(options.rules ?? "h17");
+  const chart =
+    options.rules ?? (options.strategy !== undefined ? basename(options.strategy, ".json") : "h17");
   const engineResult = await BlackjackEngine.create({ strategy: strategyPath });
   if (engineResult.isErr()) {
     io.error(engineResult.error.message);
@@ -96,6 +103,7 @@ export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Prom
             hand: options.hand,
             dealer: options.dealer,
             bet: options.bet,
+            chart,
             strategyAction,
             ev,
             cashOut: options.cashout,
@@ -114,6 +122,7 @@ export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Prom
           handDescription: describeHand(handValue.value),
           dealer: options.dealer,
           action: strategyAction,
+          chart,
           ev,
           cashOut: { offer: options.cashout, value: cashOutValue, recommendation },
         }),
@@ -136,6 +145,7 @@ export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Prom
           hand: options.hand,
           dealer: options.dealer,
           bet: options.bet,
+          chart,
           strategyAction: actionResult.value,
           ev,
           finalAction: actionResult.value,
@@ -151,6 +161,7 @@ export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Prom
         handDescription: describeHand(handValue.value),
         dealer: options.dealer,
         action: actionResult.value,
+        chart,
         ev,
       }),
     );

@@ -6,6 +6,7 @@ export const recommendOptionsSchema = z.object({
   hand: z.string().min(1),
   dealer: z.string().min(1),
   cashout: z.coerce.number().nonnegative().optional(),
+  rules: z.enum(["s17", "h17"]).optional(),
   strategy: z.string().min(1).optional(),
   json: z.boolean().optional().default(false),
 });

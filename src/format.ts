@@ -23,6 +23,8 @@ export interface ReportInput {
   handDescription: string;
   dealer: string;
   action: Action;
+  /** Short chart label shown next to the strategy action, e.g. "h17". */
+  chart?: string;
   ev: number;
   cashOut?: {
     offer: number;
@@ -44,7 +46,7 @@ export function renderReport(input: ReportInput): string {
   const rows: Array<[string, string]> = [
     ["Current Hand", `${input.hand} (${input.handDescription})`],
     ["Dealer", input.dealer],
-    ["Strategy", formatAction(input.action)],
+    ["Strategy", `${formatAction(input.action)}${input.chart ? ` (${input.chart})` : ""}`],
     ["Expected Value", input.ev.toFixed(2)],
   ];
   if (input.cashOut) {
