@@ -43,7 +43,7 @@ Dealer up card: 9
 Cash-out offer (press Enter to skip): 82
 Current Hand    A,7 (soft 18)
 Dealer          9
-Strategy        Hit
+Strategy        Hit (h17)
 Expected Value  0.90
 Cash Out        82 (0.82 units)
 Recommendation  Continue
