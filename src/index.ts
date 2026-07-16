@@ -2,6 +2,12 @@ import { Command } from "commander";
 import { createConsoleAsk } from "./prompt.js";
 import { runRecommend } from "./run.js";
 
+// Exit quietly when stdout closes early (e.g. piping into `head`).
+process.stdout.on("error", (error: NodeJS.ErrnoException) => {
+  if (error.code === "EPIPE") process.exit(0);
+  throw error;
+});
+
 const program = new Command();
 
 program
