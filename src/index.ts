@@ -7,7 +7,7 @@ const program = new Command();
 program
   .name("blackjack")
   .description("Blackjack basic-strategy and cash-out recommendations")
-  .version("0.2.0");
+  .version("0.3.0");
 
 program
   .command("recommend", { isDefault: true })
@@ -19,7 +19,7 @@ program
   .option("--hand <cards|total>", 'player cards ("A,7") or a hard total ("16")')
   .option("--dealer <card>", "dealer up card (e.g. 9, J, A)")
   .option("--cashout <amount>", "cash-out offer to compare against continuing")
-  .option("--rules <s17|h17>", "bundled chart: h17 = dealer hits soft 17 (default), s17 = stands")
+  .option("--rules <s17|h17>", "bundled chart: s17 = dealer stands on soft 17 (default), h17 = hits")
   .option("--strategy <path>", "path to a custom strategy JSON file (overrides --rules)")
   .option("--json", "print machine-readable JSON")
   .action(async (options: unknown) => {

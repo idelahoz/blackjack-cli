@@ -1,6 +1,6 @@
 {
   "name": "@idelahoz/blackjack-cli",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Command-line interface for the @idelahoz/blackjack-engine recommendation library.",
   "keywords": [
     "blackjack",

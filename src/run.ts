@@ -71,9 +71,9 @@ export async function runRecommend(rawOptions: unknown, io: Io, ask?: Ask): Prom
     io.error("Use either --rules or --strategy, not both.");
     return 1;
   }
-  const strategyPath = options.strategy ?? bundledStrategyPath(options.rules ?? "h17");
+  const strategyPath = options.strategy ?? bundledStrategyPath(options.rules ?? "s17");
   const chart =
-    options.rules ?? (options.strategy !== undefined ? basename(options.strategy, ".json") : "h17");
+    options.rules ?? (options.strategy !== undefined ? basename(options.strategy, ".json") : "s17");
   const engineResult = await BlackjackEngine.create({ strategy: strategyPath });
   if (engineResult.isErr()) {
     io.error(engineResult.error.message);
